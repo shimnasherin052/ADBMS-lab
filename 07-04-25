@@ -1,0 +1,94 @@
+mysql> CREATE TABLE publishers (
+    ->     publisherid INT AUTO_INCREMENT PRIMARY KEY,
+    ->     name VARCHAR(50) NOT NULL UNIQUE,
+    ->     address VARCHAR(100) NOT NULL
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> CREATE TABLE books (
+    ->     accno INT AUTO_INCREMENT PRIMARY KEY,
+    ->     title VARCHAR(100) NOT NULL UNIQUE,
+    ->     author VARCHAR(50) NOT NULL,
+    ->     price FLOAT(6,2) NOT NULL,
+    ->     type ENUM('lending', 'reference') NOT NULL,
+    ->     availability ENUM('yes', 'no') NOT NULL,
+    ->     publisherid INT,
+    ->     FOREIGN KEY (publisherid) REFERENCES publishers(publisherid)
+    -> );
+Query OK, 0 rows affected, 1 warning (0.02 sec)
+
+mysql> CREATE TABLE members (
+    ->     memberid INT AUTO_INCREMENT PRIMARY KEY,
+    ->     name VARCHAR(50) NOT NULL,
+    ->     address VARCHAR(100) NOT NULL,
+    ->     type ENUM('staff', 'student') NOT NULL
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> CREATE TABLE issues (
+    ->     issueid INT AUTO_INCREMENT PRIMARY KEY,
+    ->     memberid INT,
+    ->     accno INT,
+    ->     issuedate DATE NOT NULL,
+    ->     duedate DATE NOT NULL,
+    ->     FOREIGN KEY (memberid) REFERENCES members(memberid),
+    ->     FOREIGN KEY (accno) REFERENCES books(accno)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> CREATE TABLE returns (
+    ->     returnid INT AUTO_INCREMENT PRIMARY KEY,
+    ->     memberid INT,
+    ->     accno INT,
+    ->     returndate DATE NOT NULL,
+    ->     fine INT DEFAULT 0 CHECK (fine >= 0),
+    ->     FOREIGN KEY (memberid) REFERENCES members(memberid),
+    ->     FOREIGN KEY (accno) REFERENCES books(accno)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> INSERT INTO publishers (name, address) VALUES 
+    -> ('Penguin Books', '123 Penguin Street, NY'),
+    -> ('HarperCollins', '456 Harper Ave, CA'),
+    -> ('Oxford University Press', '789 Oxford Road, London'),
+    -> ('Pearson Education', '101 Pearson Way, NY'),
+    -> ('Cambridge University Press', '202 Cambridge Lane, UK');
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO books (title, author, price, type, availability, publisherid) VALUES
+    -> ('The Great Gatsby', 'F. Scott Fitzgerald', 10.99, 'lending', 'yes', 1),
+    -> ('To Kill a Mockingbird', 'Harper Lee', 12.50, 'reference', 'yes', 2),
+    -> ('1984', 'George Orwell', 8.99, 'lending', 'no', 3),
+    -> ('Moby Dick', 'Herman Melville', 15.00, 'lending', 'yes', 4),
+    -> ('Pride and Prejudice', 'Jane Austen', 9.99, 'reference', 'no', 5);
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO members (name, address, type) VALUES
+    -> ('John Doe', '123 Main St, NY', 'staff'),
+    -> ('Jane Smith', '456 Elm St, CA', 'student'),
+    -> ('Bob Johnson', '789 Oak St, TX', 'staff'),
+    -> ('Alice Brown', '101 Pine St, NY', 'student'),
+    -> ('Charlie Davis', '202 Maple St, FL', 'student');
+Query OK, 5 rows affected (0.00 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO issues (memberid, accno, issuedate, duedate) VALUES
+    -> (1, 1, '2025-04-01', '2025-04-15'),
+    -> (2, 3, '2025-04-02', '2025-04-16'),
+    -> (3, 4, '2025-04-03', '2025-04-17'),
+    -> (4, 5, '2025-04-04', '2025-04-18'),
+    -> (5, 2, '2025-04-05', '2025-04-19');
+Query OK, 5 rows affected (0.01 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO returns (memberid, accno, returndate, fine) VALUES
+    -> (1, 1, '2025-04-12', 0),
+    -> (2, 3, '2025-04-10', 5),
+    -> (3, 4, '2025-04-15', 0),
+    -> (4, 5, '2025-04-13', 0),
+    -> (5, 2, '2025-04-10', 3);
+Query OK, 5 rows affected (0.00 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
